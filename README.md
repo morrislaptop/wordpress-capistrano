@@ -1,6 +1,6 @@
 # Capistrano::Composer
 
-A set of recipes for working with WordPress (via WP CLI) and Capistrano 3
+A set of recipes for working with WordPress (via WP CLI) and Capistrano 3.
 
 ## Installation
 
@@ -27,7 +27,7 @@ Require the module in your `Capfile`:
 require 'wordpress/capistrano'
 ```
 
-`wordpress/capistrano` comes with 5 tasks:
+`wordpress/capistrano` comes with 4 tasks:
 
 * wordpress:push_db
 * wordpress:pull_db
@@ -40,6 +40,17 @@ Capistrano's default deploy, or can be run in isolation with:
 ```bash
 $ cap production wordpress:deploy_db
 $ cap production wordpress:sync_content
+```
+
+### Other Recommended Settings
+
+This gem does not have libraries to perform common tasks like symlinking wp-content/uploads or symlinking database
+configuration files. Some recommended settings to go along with your deploy.rb are below.
+
+```ruby
+set :url, 'http://www.wordpress.org'
+set :local_url, 'lid0043.localhost'
+set :wp_path, '.'
 ```
 
 ### Configuration
@@ -58,6 +69,8 @@ set :local_url, 'lid0043.localhost'
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+Also, please ask the owner of the capistrano-wordpress gem to give up his name!
 
 ## Credits
 
