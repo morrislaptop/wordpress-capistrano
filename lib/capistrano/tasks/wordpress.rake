@@ -3,27 +3,32 @@ namespace :wordpress do
   namespace :db do
     desc "Pull the remote database"
     task :pull do
-      on roles(:web) do
+
+      on roles(:db) do
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
-            execute :wp, "migrate to #{fetch(:tmp_dir)} #{fetch(:local_url)} #{fetch(:tmp_dir)}/database.sql"
-            download! "#{fetch(:tmp_dir)}/database.sql", "database.sql"
-            execute :rm, "#{fetch(:tmp_dir)}/database.sql"
+            execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:tmp_dir)}/database.sql"
           end
         end
 
+        download! "#{fetch(:tmp_dir)}/database.sql", "database.sql"
+
         run_locally do
-          execute "mysql -u #{fetch(:wpdb)[:local][:user]} -p#{fetch(:wpdb)[:local][:password]} -h #{fetch(:wpdb)[:local][:host]} #{fetch(:wpdb)[:local][:name]} < database.sql"
+          execute :wp, "--path=#{fetch(:wp_path)} db import database.sql"
           execute :rm, "database.sql"
         end
+
+        execute :rm, "#{fetch(:tmp_dir)}/database.sql"
       end
+
     end
 
     desc "Push the local database"
     task :push do
       on roles(:web) do
+
         run_locally do
-          execute :wp, "db export database.sql"
+          execute :wp, "--path=#{fetch(:wp_path)} db export database.sql"
         end
 
         upload! "database.sql", "#{fetch(:tmp_dir)}/database.sql"
@@ -34,27 +39,60 @@ namespace :wordpress do
 
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
-            execute :wp, "db import #{fetch(:tmp_dir)}/database.sql"
-            execute :wp, "search-replace #{fetch(:local_url)} #{fetch(:url)}"
+            execute :wp, "--path=#{fetch(:wp_path)} db import #{fetch(:tmp_dir)}/database.sql"
+            execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
           end
         end
+
       end
     end
 
     desc "Push the database in version control"
     task :deploy do
+
       on roles(:db) do
+
         upload! "#{fetch(:application)}.sql", "#{fetch(:tmp_dir)}/database.sql"
 
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
-            execute :wp, "db import #{fetch(:tmp_dir)}/database.sql"
-            execute :wp, "search-replace #{fetch(:local_url)} #{fetch(:url)}"
+            execute :wp, "--path=#{fetch(:wp_path)} db import #{fetch(:tmp_dir)}/database.sql"
+            execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
           end
         end
+
       end
+
     end
+  end
+
+  namespace :content do
+
+    desc "Synchronise local and remote wp content folders"
+    task :sync do
+
+      run_locally do
+        roles(:all).each do |role|
+          user = role.user + "@" if !role.user.nil?
+          execute :rsync, "-avzO #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}/ #{fetch(:wp_uploads)}"
+          execute :rsync, "-avzO #{fetch(:wp_uploads)}/ #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}"
+        end
+      end
+
+    end
+
+  end
+
+
+end
+
+namespace :load do
+  task :defaults do
+    set :url, 'www.wordpress.org'
+    set :local_url, 'localhost'
+    set :wp_path, '.'
+    set :wp_uploads, 'wp-content/uploads'
   end
 end

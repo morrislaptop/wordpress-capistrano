@@ -29,17 +29,26 @@ require 'wordpress/capistrano'
 
 `wordpress/capistrano` comes with 4 tasks:
 
-* wordpress:push_db
-* wordpress:pull_db
-* wordpress:deploy_db
-* wordpress:sync_content
+* wordpress:db:push
+* wordpress:db:pull
+* wordpress:db:deploy
+* wordpress:content:sync
 
-The `wordpress:deploy_db` and `wordpress:sync_content` tasks will run before deploy:updated as part of
-Capistrano's default deploy, or can be run in isolation with:
+You can run any of these by issuing the following commands..
 
 ```bash
-$ cap production wordpress:deploy_db
-$ cap production wordpress:sync_content
+$ bundle exec cap production wordpress:db:push
+$ bundle exec cap production wordpress:db:pull
+$ bundle exec cap production wordpress:db:deploy
+$ bundle exec cap production wordpress:content:sync
+```
+
+None of these tasks are built into the default Capistrano deploy as they are potentially damaging.
+
+To add any of them (I've used wordpress:db:deploy and wordpress:content:sync on sites which I know all content updates are version controlled)
+
+```ruby
+
 ```
 
 ### Other Recommended Settings
@@ -47,19 +56,71 @@ $ cap production wordpress:sync_content
 This gem does not have libraries to perform common tasks like symlinking wp-content/uploads or symlinking database
 configuration files. Some recommended settings to go along with your deploy.rb are below.
 
-```ruby
-set :url, 'http://www.wordpress.org'
-set :local_url, 'lid0043.localhost'
-set :wp_path, '.'
+#### Use Composer for WordPress and Plugins
+
+```json
+{
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "http://wpackagist.org"
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "wordpress",
+				"type": "webroot",
+				"version": "3.8.1",
+				"dist": {
+					"type": "zip",
+					"url": "http://en-au.wordpress.org/wordpress-3.8.1-en_AU.zip"
+				},
+				"require": {
+					"fancyguy/webroot-installer": "1.0.0"
+				}
+			}
+		},
+	],
+	"require": {
+		"php": ">=5.3.0",
+		"wordpress": "3.8.1",
+		"fancyguy/webroot-installer": "1.0.0",
+		"wpackagist/advanced-custom-fields": "*",
+		"wpackagist/codepress-admin-columns": "*",
+		"wpackagist/custom-post-type-ui": "*",
+		"wpackagist/wordpress-importer": "*",
+		"wpackagist/duplicate-post": "*",
+		"wpackagist/simple-page-ordering": "*",
+		"wpackagist/adminimize": "*"
+	},
+	"require-dev": {
+		"wpackagist/debug-bar": "*",
+		"wpackagist/pretty-debug": "*"
+	},
+	"extra": {
+		"webroot-dir": "wp",
+		"webroot-package": "wordpress"
+	}
+}
 ```
+
+#### Use Linked Dirs and Linked Files
+
+```ruby
+set :linked_dirs, %w{wp-content/uploads}
+set :linked_files, %w{wp-config.local.php}
+```
+
 
 ### Configuration
 
 Configurable options, shown here with defaults:
 
 ```ruby
-set :url, 'http://www.wordpress.org'
-set :local_url, 'lid0043.localhost'
+set :url, 'www.wordpress.org'
+set :local_url, 'localhost'
+set :wp_path, '.'
+set :wp_uploads, 'wp-content/uploads'
 ```
 
 ## Contributing
