@@ -4,12 +4,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'wordpress-capistrano'
-  spec.version       = '0.1'
+  spec.version       = '0.1.1'
   spec.authors       = ['Craig Morris']
   spec.email         = ['craig.michael.morris@gmail.com']
   spec.description   = %q{WordPress support for Capistrano 3.x}
   spec.summary       = %q{WordPress support for Capistrano 3.x}
-  spec.homepage      = 'https://github.com/morrislaptop/wordpress-composer'
+  spec.homepage      = 'https://github.com/morrislaptop/wordpress-capistrano'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)

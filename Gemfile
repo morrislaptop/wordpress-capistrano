@@ -1,5 +1,4 @@
-# A sample Gemfile
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-# gem "rails"
-gem 'capistrano-composer'
+# Specify your gem's dependencies in capistrano-bundler.gemspec
+gemspec

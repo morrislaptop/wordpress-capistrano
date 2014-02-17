@@ -24,7 +24,7 @@ Or install it yourself as:
 Require the module in your `Capfile`:
 
 ```ruby
-require 'wordpress/capistrano'
+require 'capistrano/wordpress'
 ```
 
 `wordpress/capistrano` comes with 4 tasks:
@@ -45,11 +45,14 @@ $ bundle exec cap production wordpress:content:sync
 
 None of these tasks are built into the default Capistrano deploy as they are potentially damaging.
 
-To add any of them (I've used wordpress:db:deploy and wordpress:content:sync on sites which I know all content updates are version controlled)
+To add any of them, add the following code into your deploy.rb
 
 ```ruby
-
+after :updated, 'wordpress:db:deploy'
+after :updated, 'wordpress:content:sync'
 ```
+
+These are useful on sites where all content is under version control
 
 ### Other Recommended Settings
 
