@@ -32,7 +32,7 @@ require 'capistrano/wordpress'
 * wordpress:db:push
 * wordpress:db:pull
 * wordpress:db:deploy
-* wordpress:content:sync
+* wordpress:uploads:sync
 
 You can run any of these by issuing the following commands..
 
@@ -40,7 +40,7 @@ You can run any of these by issuing the following commands..
 $ bundle exec cap production wordpress:db:push
 $ bundle exec cap production wordpress:db:pull
 $ bundle exec cap production wordpress:db:deploy
-$ bundle exec cap production wordpress:content:sync
+$ bundle exec cap production wordpress:uploads:sync
 ```
 
 None of these tasks are built into the default Capistrano deploy as they are potentially damaging.
@@ -49,7 +49,7 @@ To add any of them, add the following code into your deploy.rb
 
 ```ruby
 after :updated, 'wordpress:db:deploy'
-after :updated, 'wordpress:content:sync'
+after :updated, 'wordpress:uploads:sync'
 ```
 
 These are useful on sites where all content is under version control

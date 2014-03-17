@@ -68,7 +68,7 @@ namespace :wordpress do
     end
   end
 
-  namespace :content do
+  namespace :uploads do
 
     desc "Synchronise local and remote wp content folders"
     task :sync do
@@ -85,6 +85,12 @@ namespace :wordpress do
 
   end
 
+  namespace :content do
+    desc "Synchronise local and remote wp content folders"
+    task :sync do
+      invoke 'uploads:sync'
+    end
+  end
 
 end
 
