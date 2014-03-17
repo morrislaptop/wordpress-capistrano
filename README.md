@@ -1,4 +1,4 @@
-# Capistrano::Composer
+# Capistrano::WordPress
 
 A set of recipes for working with WordPress (via WP CLI) and Capistrano 3.
 
@@ -29,10 +29,10 @@ require 'capistrano/wordpress'
 
 `wordpress/capistrano` comes with 4 tasks:
 
-* wordpress:db:push
-* wordpress:db:pull
-* wordpress:db:deploy
-* wordpress:uploads:sync
+* wordpress:db:push - Exports your local database and imports it on remote server
+* wordpress:db:pull - Exports your remote database and imports it on your local
+* wordpress:db:deploy - Uploads the <database name>.sql in your version control and imports in on remote
+* wordpress:uploads:sync - Synchronises your local and remote wp-content/uploads folder so that you have all assets
 
 You can run any of these by issuing the following commands..
 
