@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'wordpress-capistrano'
-  spec.version       = '0.1.2'
+  spec.version       = '0.2.0'
   spec.authors       = ['Craig Morris']
   spec.email         = ['craig.michael.morris@gmail.com']
   spec.description   = %q{WordPress support for Capistrano 3.x}
@@ -17,7 +17,7 @@ Gem::Specification.new do |spec|
   #spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'capistrano', '>= 3.0.0.pre'
+  spec.add_dependency 'capistrano', '~> 3.0'
 
   spec.add_development_dependency 'bundler', '~> 1.3'
   spec.add_development_dependency 'rake'
