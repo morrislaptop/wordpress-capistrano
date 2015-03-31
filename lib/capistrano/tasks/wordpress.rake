@@ -15,9 +15,10 @@ namespace :wordpress do
 
         run_locally do
           execute :wp, "--path=#{fetch(:wp_path)} db import database.sql"
+          execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:url)} #{fetch(:local_url)}"
           execute :rm, "database.sql"
-          execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :template_root
-          execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :stylesheet_root
+          execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :template_root, raise_on_non_zero_exit: false
+          execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :stylesheet_root, raise_on_non_zero_exit: false
         end
 
         execute :rm, "#{fetch(:tmp_dir)}/database.sql"
