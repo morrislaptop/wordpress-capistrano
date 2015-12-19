@@ -14,6 +14,8 @@ namespace :wordpress do
         download! "#{fetch(:tmp_dir)}/database.sql", "database.sql"
 
         run_locally do
+          timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
+          execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
           execute :wp, "--path=#{fetch(:wp_path)} db import database.sql"
           execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:url)} #{fetch(:local_url)}"
           execute :rm, "database.sql"
@@ -42,6 +44,8 @@ namespace :wordpress do
 
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
+            timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
+            execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
             execute :wp, "--path=#{fetch(:wp_path)} db import #{fetch(:tmp_dir)}/database.sql"
             execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
@@ -61,6 +65,8 @@ namespace :wordpress do
 
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
+            timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
+            execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
             execute :wp, "--path=#{fetch(:wp_path)} db import #{fetch(:tmp_dir)}/database.sql"
             execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
