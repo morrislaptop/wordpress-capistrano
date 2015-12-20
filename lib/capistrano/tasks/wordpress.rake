@@ -50,6 +50,7 @@ namespace :wordpress do
             execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
             invoke 'wordpress:paths'
+            execute :echo, %{"Database imported at #{timestamp}" >> #{revision_log}}
           end
         end
 
@@ -71,6 +72,7 @@ namespace :wordpress do
             execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
             execute :rm, "#{fetch(:tmp_dir)}/database.sql"
             invoke 'wordpress:paths'
+            execute :echo, %{"Database imported at #{timestamp}" >> #{revision_log}}
           end
         end
 
