@@ -30,7 +30,7 @@ namespace :wordpress do
 
     desc "Push the local database"
     task :push do
-      on roles(:web) do
+      on roles(:db) do
 
         run_locally do
           execute :wp, "--path=#{fetch(:wp_path)} db export database.sql"
