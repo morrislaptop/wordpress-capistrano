@@ -8,29 +8,33 @@ namespace :wordpress do
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
             execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:tmp_dir)}/database.sql"
+            execute :zip, "-j database #{fetch(:tmp_dir)}/database.sql"
           end
         end
 
-        download! "#{fetch(:tmp_dir)}/database.sql", "database.sql"
+        download! "#{fetch(:tmp_dir)}/database.zip", "database.zip"
 
         run_locally do
           timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
           execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
+          execute :unzip, "-o -j database.zip"
           execute :wp, "--path=#{fetch(:wp_path)} db import database.sql"
           execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:url)} #{fetch(:local_url)}"
+          execute :rm, "database.zip"
           execute :rm, "database.sql"
           execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :template_root, raise_on_non_zero_exit: false
           execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :stylesheet_root, raise_on_non_zero_exit: false
         end
 
         execute :rm, "#{fetch(:tmp_dir)}/database.sql"
+        execute :rm, "#{fetch(:tmp_dir)}/database.zip"
       end
 
     end
 
     desc "Push the local database"
     task :push do
-      on roles(:db) do
+      on roles(:web) do
 
         run_locally do
           execute :wp, "--path=#{fetch(:wp_path)} db export database.sql"
