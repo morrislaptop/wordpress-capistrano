@@ -87,23 +87,36 @@ namespace :wordpress do
 
   namespace :uploads do
 
-    desc "Synchronise local and remote wp content folders"
+    desc "Synchronise local and remote wp-content/uploads folders"
     task :sync do
+      invoke 'pull'
+      invoke 'push'
+    end
 
+    desc "Pull remote wp-content/uploads folder"
+    task :pull do
       run_locally do
         roles(:all).each do |role|
           user = role.user + "@" if !role.user.nil?
           execute :rsync, "-avzO #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}/ #{fetch(:wp_uploads)}"
+        end
+      end
+    end
+
+    desc "Push local wp-content folder to remote wp-content/uploads folder"
+    task :push do
+      run_locally do
+        roles(:all).each do |role|
+          user = role.user + "@" if !role.user.nil?
           execute :rsync, "-avzO #{fetch(:wp_uploads)}/ #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}"
         end
       end
-
     end
 
   end
 
   namespace :content do
-    desc "Synchronise local and remote wp content folders"
+    desc "Synchronise local and remote wp-content/uploads folders"
     task :sync do
       invoke 'uploads:sync'
     end
