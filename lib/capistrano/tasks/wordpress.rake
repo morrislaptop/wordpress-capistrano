@@ -8,7 +8,7 @@ namespace :wordpress do
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
             execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:tmp_dir)}/database.sql"
-            execute :zip, "-j database #{fetch(:tmp_dir)}/database.sql"
+            execute :zip, "-j #{fetch(:tmp_dir)}/database #{fetch(:tmp_dir)}/database.sql"
           end
         end
 
