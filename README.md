@@ -33,6 +33,8 @@ require 'capistrano/wordpress'
 * wordpress:db:pull - Exports your remote database and imports it on your local
 * wordpress:db:deploy - Uploads the <database name>.sql in your version control and imports in on remote
 * wordpress:uploads:sync - Synchronises your local and remote wp-content/uploads folder so that you have all assets
+* wordpress:uploads:push - Pushes your local wp-content/uploads folder to the remote.
+* wordpress:uploads:pull - Pulls the remote wp-content/uploads folder to your local installation.
 * wordpress:paths - Updates WordPress paths to match latest release folders
 
 You can run any of these by issuing the following commands..
@@ -42,6 +44,8 @@ $ bundle exec cap production wordpress:db:push
 $ bundle exec cap production wordpress:db:pull
 $ bundle exec cap production wordpress:db:deploy
 $ bundle exec cap production wordpress:uploads:sync
+$ bundle exec cap production wordpress:uploads:pull
+$ bundle exec cap production wordpress:uploads:push
 $ bundle exec cap production wordpress:paths
 ```
 
