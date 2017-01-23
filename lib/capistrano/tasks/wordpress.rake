@@ -8,52 +8,67 @@ namespace :wordpress do
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
             execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:tmp_dir)}/database.sql"
-            execute :zip, "-j #{fetch(:tmp_dir)}/database #{fetch(:tmp_dir)}/database.sql"
+            execute :gzip, "-f #{fetch(:tmp_dir)}/database.sql"
           end
         end
 
-        download! "#{fetch(:tmp_dir)}/database.zip", "database.zip"
+        download! "#{fetch(:tmp_dir)}/database.sql.gz", "database.sql.gz"
 
         run_locally do
           timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
-          execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
-          execute :unzip, "-o -j database.zip"
+          
+          execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql" # backup
+          
+          execute :gunzip, "-f database.sql.gz"
           execute :wp, "--path=#{fetch(:wp_path)} db import database.sql"
           execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:url)} #{fetch(:local_url)}"
-          execute :rm, "database.zip"
-          execute :rm, "database.sql"
+          
+          execute :rm, "database.sql.gz", raise_on_non_zero_exit: false
+          execute :rm, "database.sql", raise_on_non_zero_exit: false
+          
           execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :template_root, raise_on_non_zero_exit: false
           execute :wp, "--path=#{fetch(:wp_path)}", :option, :delete, :stylesheet_root, raise_on_non_zero_exit: false
         end
 
-        execute :rm, "#{fetch(:tmp_dir)}/database.sql"
-        execute :rm, "#{fetch(:tmp_dir)}/database.zip"
+        execute :rm, "#{fetch(:tmp_dir)}/database.sql", raise_on_non_zero_exit: false
+        execute :rm, "#{fetch(:tmp_dir)}/database.sql.gz", raise_on_non_zero_exit: false
       end
 
     end
 
+    # @todo GZIP
     desc "Push the local database"
     task :push do
-      on roles(:web) do
+      on roles(:db) do
 
         run_locally do
           execute :wp, "--path=#{fetch(:wp_path)} db export database.sql"
+          execute :gzip, "-f database.sql"
         end
 
-        upload! "database.sql", "#{fetch(:tmp_dir)}/database.sql"
+        upload! "database.sql.gz", "#{fetch(:tmp_dir)}/database.sql.gz" 
 
         run_locally do
-          execute :rm, "database.sql"
+          execute :rm, "database.sql", raise_on_non_zero_exit: false
+          execute :rm, "database.sql.gz", raise_on_non_zero_exit: false
         end
 
         within release_path do
           with path: "#{fetch(:path)}:$PATH" do
             timestamp = "#{Time.now.year}-#{Time.now.month}-#{Time.now.day}-#{Time.now.hour}-#{Time.now.min}-#{Time.now.sec}"
-            execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql"
+            
+            execute :wp, "--path=#{fetch(:wp_path)} db export #{fetch(:application)}.#{timestamp}.sql" # backup
+            
+            execute :gunzip, "-f #{fetch(:tmp_dir)}/database.sql.gz"
+            
             execute :wp, "--path=#{fetch(:wp_path)} db import #{fetch(:tmp_dir)}/database.sql"
             execute :wp, "--path=#{fetch(:wp_path)} search-replace #{fetch(:local_url)} #{fetch(:url)}"
-            execute :rm, "#{fetch(:tmp_dir)}/database.sql"
+            
+            execute :rm, "#{fetch(:tmp_dir)}/database.sql", raise_on_non_zero_exit: false
+            execute :rm, "#{fetch(:tmp_dir)}/database.sql.gz", raise_on_non_zero_exit: false
+            
             invoke 'wordpress:paths'
+            
             execute :echo, %{"Database imported at #{timestamp}" >> #{revision_log}}
           end
         end
@@ -61,6 +76,8 @@ namespace :wordpress do
       end
     end
 
+    # Database name locally must match the :application variable in capistrano
+    # @todo gzip
     desc "Push the database in version control"
     task :deploy do
 
@@ -96,7 +113,7 @@ namespace :wordpress do
     desc "Pull remote wp-content/uploads folder"
     task :pull do
       run_locally do
-        roles(:all).each do |role|
+        roles(:web).each do |role|
           user = role.user + "@" if !role.user.nil?
           execute :rsync, "-avzO #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}/ #{fetch(:wp_uploads)}"
         end
@@ -106,7 +123,7 @@ namespace :wordpress do
     desc "Push local wp-content folder to remote wp-content/uploads folder"
     task :push do
       run_locally do
-        roles(:all).each do |role|
+        roles(:web).each do |role|
           user = role.user + "@" if !role.user.nil?
           execute :rsync, "-avzO #{fetch(:wp_uploads)}/ #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}"
         end
