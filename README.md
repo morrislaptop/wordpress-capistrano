@@ -130,6 +130,7 @@ set :url, 'www.wordpress.org'
 set :local_url, 'localhost'
 set :wp_path, '.'
 set :wp_uploads, 'wp-content/uploads'
+set :wp_themes, 'wp-content/themes'
 ```
 
 ## Contributing
